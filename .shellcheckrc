@@ -1,0 +1,3 @@
+# $VARS in single quotes are expanded inside the sandbox, on purpose.
+disable=SC2016
+source-path=SCRIPTDIR/..

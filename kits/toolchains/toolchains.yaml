@@ -1,0 +1,86 @@
+# syntax=docker/sandbox-kit:3
+schemaVersion: "3"
+kind: mixin
+displayName: agentbox toolchains
+description: >-
+  Node (LTS), bun, uv, Rust (rustup), Temurin JDK and mise under /opt, plus a
+  C toolchain installed at create time if the workload lacks one.
+
+args:
+  node_major:
+    default: "24"
+    pattern: '^[0-9]+$'
+    description: Node.js major line to install (latest release of that line)
+    buildArg: NODE_MAJOR
+  java_major:
+    default: "21"
+    pattern: '^[0-9]+$'
+    description: Temurin JDK feature release
+    buildArg: JAVA_MAJOR
+  rust_toolchain:
+    default: "stable"
+    pattern: '^[0-9A-Za-z.-]+$'
+    description: Default rustup toolchain
+    buildArg: RUST_TOOLCHAIN
+
+capabilities:
+  - type: com.docker.sandbox/network-policy@1
+    config:
+      # apt for the C toolchain hook. apt-get update refreshes every source the
+      # base ships, so all Ubuntu hosts and Docker's repo must be reachable.
+      install:
+        allow:
+          - archive.ubuntu.com
+          - security.ubuntu.com
+          - ports.ubuntu.com
+          - download.docker.com
+      # Package registries and toolchain downloads the agent uses day to day.
+      runtime:
+        allow:
+          - registry.npmjs.org
+          - registry.yarnpkg.com
+          - nodejs.org
+          - bun.sh
+          - pypi.org
+          - files.pythonhosted.org
+          - astral.sh
+          - crates.io
+          - index.crates.io
+          - static.crates.io
+          - static.rust-lang.org
+          - repo.maven.apache.org
+          - repo1.maven.org
+          - services.gradle.org
+          - plugins.gradle.org
+          - downloads.gradle.org
+          - api.adoptium.net
+          - mise.jdx.dev
+          - archive.ubuntu.com
+          - security.ubuntu.com
+          - ports.ubuntu.com
+          - download.docker.com
+
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      install:
+        # Rust and native Python/Node modules need a linker and headers. Most
+        # Docker templates ship them; install only when missing.
+        - command: |
+            set -e
+            command -v cc >/dev/null 2>&1 && command -v pkg-config >/dev/null 2>&1 && exit 0
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update -qq
+            apt-get install -y -qq --no-install-recommends build-essential pkg-config libssl-dev
+          user: "0"
+          env: [HTTP_PROXY, HTTPS_PROXY, http_proxy, https_proxy, NO_PROXY, no_proxy]
+          description: Install a C toolchain if the workload has none
+
+  - type: com.docker.sandbox/agent-context@1
+    config:
+      content: |
+        ## Toolchains (agentbox)
+        - Node.js, npm and corepack live in /opt/node; `npm i -g` works.
+        - bun is in /opt/bun; uv/uvx in /opt/uv. Use `uv run` / `uv python install` for Python.
+        - Rust via rustup in /opt/rust (RUSTUP_HOME, CARGO_HOME). `rustup toolchain install` works.
+        - Temurin JDK in /opt/java. Use the project's Gradle/Maven wrapper.
+        - mise is available for project-pinned versions (`mise install` reads .tool-versions / mise.toml).

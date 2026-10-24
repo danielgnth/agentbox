@@ -1,0 +1,20 @@
+#!/bin/sh
+# op-agents — run `op` as the read-only 1Password service account.
+# The token comes from the macOS Keychain; it is never in env files or history.
+set -eu
+
+ROOT=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
+# shellcheck source=SCRIPTDIR/../config.env
+. "$ROOT/config.env"
+
+# The sbx daemon runs --command helpers with a minimal PATH, so also look in
+# the usual Homebrew locations.
+OP_BIN=$(command -v op || true)
+for c in /opt/homebrew/bin/op /usr/local/bin/op; do
+  [ -n "$OP_BIN" ] || { [ -x "$c" ] && OP_BIN=$c; }
+done
+[ -n "$OP_BIN" ] || { echo "op-agents: 1Password CLI (op) not found" >&2; exit 1; }
+OP_SERVICE_ACCOUNT_TOKEN=$(security find-generic-password -a "$USER" -s "$OP_KEYCHAIN_SERVICE" -w) \
+  || { echo "op-agents: no Keychain item '$OP_KEYCHAIN_SERVICE' (run: agentbox setup)" >&2; exit 1; }
+export OP_SERVICE_ACCOUNT_TOKEN
+exec "$OP_BIN" "$@"

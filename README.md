@@ -116,6 +116,13 @@ test/                         bun test, against a temporary HOME
   `~/.local/share/agentbox`, which is outside every writable path. It is never a link into this checkout.
   The managed settings also deny `Edit` on that folder, the shim, the config and
   the token cache.
+- **Shell startup files and git config are denied to `Edit`.** Bash can't
+  write them from the sandbox, but the Edit and Write tools run outside it.
+  Permission rules can't expand variables, so `setup` resolves the real
+  locations: `ZDOTDIR` (after `~/.zshenv` runs), `XDG_CONFIG_HOME`,
+  `GIT_CONFIG_GLOBAL`, every file the global git config includes
+  (`includeIf` too) and a global `core.hooksPath`. If you move any of them,
+  rerun `agentbox setup`; `agentbox doctor` reports the drift.
 - **The hook never runs git outside the sandbox.** It reads `.git/config`
   itself to find the repo, and no environment variable can redirect what it
   executes.

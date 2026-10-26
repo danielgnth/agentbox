@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "DISABLE_TELEMETRY": "1",
+    "GIT_AUTHOR_NAME": "octo-app[bot]",
+    "GIT_AUTHOR_EMAIL": "999+octo-app[bot]@users.noreply.github.com",
+    "GIT_COMMITTER_NAME": "octo-app[bot]",
+    "GIT_COMMITTER_EMAIL": "999+octo-app[bot]@users.noreply.github.com",
+    "GIT_CONFIG_COUNT": "4",
+    "GIT_CONFIG_KEY_0": "credential.https://github.com.helper",
+    "GIT_CONFIG_VALUE_0": "",
+    "GIT_CONFIG_KEY_1": "credential.https://github.com.helper",
+    "GIT_CONFIG_VALUE_1": "!\"$HOME/.claude/hooks/git-credential-agent\"",
+    "GIT_CONFIG_KEY_2": "credential.https://github.com.useHttpPath",
+    "GIT_CONFIG_VALUE_2": "true",
+    "GIT_CONFIG_KEY_3": "commit.gpgsign",
+    "GIT_CONFIG_VALUE_3": "false",
+    "GH_CONFIG_DIR": "/old/home/.claude/agent-gh/gh"
+  },
+  "attribution": {
+    "commit": "Co-Authored-By: Octo Dev <123+octo-dev@users.noreply.github.com",
+    "pr": ""
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/agent-gh-hook" },
+          { "type": "command", "command": "my-own-bash-logger" }
+        ]
+      }
+    ],
+    "Stop": [{ "hooks": [{ "type": "command", "command": "say done" }] }]
+  },
+  "sandbox": {
+    "enabled": true,
+    "excludedCommands": [],
+    "network": { "allowedDomains": ["github.com", "my.private.registry"] },
+    "credentials": { "files": [{ "path": "~/.ssh", "mode": "deny" }, { "path": "~/.my-secrets", "mode": "deny" }] }
+  },
+  "permissions": {
+    "deny": ["Bash(sudo *)", "Read(~/.my-secrets/**)"],
+    "allow": ["Bash(make test)"]
+  },
+  "model": "opus[1m]",
+  "theme": "dark",
+  "enabledPlugins": { "superpowers@claude-plugins-official": false },
+  "spinnerVerbs": { "mode": "replace", "verbs": ["Compiling excuses…"] }
+}

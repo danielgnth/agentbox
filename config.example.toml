@@ -1,0 +1,15 @@
+# Copy to ~/.config/agentbox/config.toml (or $XDG_CONFIG_HOME/agentbox/config.toml)
+# and fill in your values. Nothing here is secret: IDs and names only.
+
+[github]
+owner = "your-login"                  # repos the agent may get tokens for
+app_client_id = "Iv23li..."           # the GitHub App the agent acts as (JWT issuer)
+# installation_id = 12345678          # optional, skips one API call per token
+# bot_name = "your-app[bot]"          # optional, derived from the App
+# bot_email = "123+your-app[bot]@users.noreply.github.com"
+# coauthor = "Your Name <id+login@users.noreply.github.com>"  # optional, derived from `gh api user`
+
+[onepassword]
+keychain_service = "agentbox-op"      # Keychain item with the service account token
+vault = "Agents"                      # the only vault that account can see
+app_key_document = "github-app-key"   # document holding the App private key (PEM)

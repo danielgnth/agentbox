@@ -1,0 +1,134 @@
+{
+  "env": {
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "3",
+    "GIT_AUTHOR_NAME": "{{BOT_NAME}}",
+    "GIT_AUTHOR_EMAIL": "{{BOT_EMAIL}}",
+    "GIT_COMMITTER_NAME": "{{BOT_NAME}}",
+    "GIT_COMMITTER_EMAIL": "{{BOT_EMAIL}}",
+    "GIT_CONFIG_COUNT": "4",
+    "GIT_CONFIG_KEY_0": "credential.https://github.com.helper",
+    "GIT_CONFIG_VALUE_0": "",
+    "GIT_CONFIG_KEY_1": "credential.https://github.com.helper",
+    "GIT_CONFIG_VALUE_1": "!\"$HOME/.local/bin/agentbox\" github credential",
+    "GIT_CONFIG_KEY_2": "credential.https://github.com.useHttpPath",
+    "GIT_CONFIG_VALUE_2": "true",
+    "GIT_CONFIG_KEY_3": "commit.gpgsign",
+    "GIT_CONFIG_VALUE_3": "false",
+    "GH_CONFIG_DIR": "{{GH_CONFIG_DIR}}"
+  },
+  "attribution": {
+    "commit": "Co-Authored-By: {{COAUTHOR}}",
+    "pr": ""
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.local/share/agentbox/hook\""
+          }
+        ]
+      }
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "autoAllowBashIfSandboxed": true,
+    "allowUnsandboxedCommands": false,
+    "enableWeakerNetworkIsolation": true,
+    "excludedCommands": [],
+    "filesystem": {
+      "allowWrite": [
+        "~/.cargo/registry",
+        "~/.cargo/git",
+        "~/.npm",
+        "~/Library/pnpm/store",
+        "~/.bun/install/cache",
+        "~/.cache",
+        "~/Library/Caches"
+      ]
+    },
+    "network": {
+      "allowedDomains": [
+        "github.com",
+        "api.github.com",
+        "codeload.github.com",
+        "*.githubusercontent.com",
+        "registry.npmjs.org",
+        "pypi.org",
+        "files.pythonhosted.org",
+        "crates.io",
+        "index.crates.io",
+        "static.crates.io"
+      ]
+    },
+    "credentials": {
+      "files": [
+        { "path": "~/.ssh", "mode": "deny" },
+        { "path": "~/.gnupg", "mode": "deny" },
+        { "path": "~/.aws", "mode": "deny" },
+        { "path": "~/.config/gcloud", "mode": "deny" },
+        { "path": "~/.kube", "mode": "deny" },
+        { "path": "~/.config/gh", "mode": "deny" },
+        { "path": "~/.config/op", "mode": "deny" },
+        { "path": "~/Library/Group Containers/2BUA8C4S2C.com.1password", "mode": "deny" },
+        { "path": "~/Library/Keychains", "mode": "deny" },
+        { "path": "~/.docker/config.json", "mode": "deny" },
+        { "path": "~/.git-credentials", "mode": "deny" },
+        { "path": "~/.netrc", "mode": "deny" },
+        { "path": "~/.npmrc", "mode": "deny" },
+        { "path": "~/.pypirc", "mode": "deny" }
+      ],
+      "envVars": [
+        { "name": "GITHUB_TOKEN", "mode": "deny" },
+        { "name": "GH_TOKEN", "mode": "deny" },
+        { "name": "NPM_TOKEN", "mode": "deny" },
+        { "name": "ANTHROPIC_API_KEY", "mode": "deny" },
+        { "name": "OP_SERVICE_ACCOUNT_TOKEN", "mode": "deny" },
+        { "name": "CLOUDSDK_AUTH_ACCESS_TOKEN", "mode": "deny" },
+        { "name": "AWS_SECRET_ACCESS_KEY", "mode": "deny" }
+      ]
+    }
+  },
+  "permissions": {
+    "deny": [
+      "Bash(sudo *)",
+      "Bash(git push*)",
+      "Bash(gh repo delete *)",
+      "Bash(gh alias *)",
+      "Bash(gh extension *)",
+      "Bash(gh config *)",
+      "Bash(gh auth *)",
+      "Read(~/.ssh/**)",
+      "Read(~/.gnupg/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/gcloud/**)",
+      "Read(~/.kube/**)",
+      "Read(~/.config/gh/**)",
+      "Read(~/.config/op/**)",
+      "Read(~/Library/Keychains/**)",
+      "Read(~/.docker/config.json)",
+      "Read(~/.git-credentials)",
+      "Read(~/.netrc)",
+      "Read(~/.npmrc)",
+      "Read(~/.pypirc)",
+      "Edit(~/.zshrc)",
+      "Edit(~/.zshenv)",
+      "Edit(~/.zprofile)",
+      "Edit(~/.bashrc)",
+      "Edit(~/.ssh/**)",
+      "Edit({{INSTALL_RULE}}/**)",
+      "Edit({{SHIM_RULE}})",
+      "Edit({{CONFIG_RULE}}/**)",
+      "Edit({{TOKEN_RULE}}/**)"
+    ],
+    "ask": ["Bash(gh pr merge *)", "Bash(rm -rf *)", "Bash(git reset --hard*)"]
+  }
+}

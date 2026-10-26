@@ -1,0 +1,25 @@
+{
+  "name": "agentbox",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "agentbox": "bin/agentbox"
+  },
+  "scripts": {
+    "lint": "biome ci .",
+    "fix": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "check": "biome ci . && tsc --noEmit && bun test"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.8.1",
+    "c12": "^3.3.4",
+    "citty": "^0.2.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.3",
+    "@types/bun": "^1.4.4",
+    "typescript": "^7.0.2"
+  }
+}

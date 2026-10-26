@@ -11,6 +11,7 @@ import { botIdentity, resolveCoauthor } from "./github.ts";
 import { configDir, ghConfigDir, installDir, rulePath, shimPath, tokenDir } from "./paths.ts";
 import { run } from "./proc.ts";
 import { type Json, render } from "./settings.ts";
+import { startupFileRules } from "./startup-files.ts";
 import { errorMessage, fail } from "./ui.ts";
 
 const BACKUP_STAMP_NOISE = /[-:]|\..*$/gu;
@@ -20,8 +21,8 @@ export const RULES: string = AGENT_RULES;
 
 /** The settings template with this machine's values filled in. */
 export async function managedSettings(cfg: Config): Promise<Json> {
-  const [bot, coauthor] = await Promise.all([botIdentity(cfg), resolveCoauthor(cfg)]);
-  return render(TEMPLATE as Json, {
+  const [bot, coauthor, startupRules] = await Promise.all([botIdentity(cfg), resolveCoauthor(cfg), startupFileRules()]);
+  const settings = render(TEMPLATE as Json, {
     BOT_NAME: bot.name,
     BOT_EMAIL: bot.email,
     COAUTHOR: coauthor,
@@ -32,6 +33,14 @@ export async function managedSettings(cfg: Config): Promise<Json> {
     CONFIG_RULE: rulePath(configDir()),
     TOKEN_RULE: rulePath(tokenDir()),
   });
+  return withDenyRules(settings, startupRules);
+}
+
+/** `settings` with `rules` added to permissions.deny (once each). */
+export function withDenyRules(settings: Json, rules: string[]): Json {
+  const out = structuredClone(settings) as { permissions: { deny: Json[] } };
+  out.permissions.deny = [...new Set([...out.permissions.deny, ...rules])];
+  return out as unknown as Json;
 }
 
 /** Parsed JSON, undefined if the file is missing, a failure if it is not valid JSON. */

@@ -1,7 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, realpathSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
+import process from "node:process";
 import TEMPLATE from "../claude/settings.managed.json" with { type: "json" };
+import { setEnv } from "../src/lib/env.ts";
+import { pnpmLockDir } from "../src/lib/managed.ts";
 import { type Json, legacySettings, planSettings, render, upsertBlock } from "../src/lib/settings.ts";
 
 type Obj = Record<string, Json>;
@@ -16,6 +20,7 @@ const VARS = {
   SHIM_RULE: "~/.local/bin/agentbox",
   CONFIG_RULE: "~/.config/agentbox",
   TOKEN_RULE: "~/.claude/agent-gh",
+  PNPM_LOCK_DIR: "/private/tmp/pnpm-store-operation-locks-501",
 };
 const template = render(TEMPLATE as Json, VARS);
 const prototype = JSON.parse(readFileSync(join(import.meta.dir, "fixtures", "settings.prototype.json"), "utf8")) as Obj;
@@ -160,5 +165,21 @@ describe("CLAUDE.md block", () => {
   it("is idempotent", () => {
     const once = upsertBlock("# Mine\n", body);
     expect(upsertBlock(once, body)).toBe(once);
+  });
+});
+
+describe("pnpm lock dir", () => {
+  const name = `pnpm-store-operation-locks-${process.geteuid?.()}`;
+
+  it("is under the resolved /tmp by default", () => {
+    setEnv("XDG_RUNTIME_DIR", undefined);
+    expect(pnpmLockDir()).toBe(join(realpathSync("/tmp"), name));
+  });
+
+  it("follows XDG_RUNTIME_DIR", () => {
+    const runtime = mkdtempSync(join(tmpdir(), "runtime-"));
+    setEnv("XDG_RUNTIME_DIR", runtime);
+    expect(pnpmLockDir()).toBe(join(realpathSync(runtime), name));
+    setEnv("XDG_RUNTIME_DIR", undefined);
   });
 });

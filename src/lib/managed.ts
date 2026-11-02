@@ -1,12 +1,13 @@
 // The managed Claude Code config: template rendering and file helpers shared
 // by `setup` and `doctor`.
-import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, realpathSync, renameSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join } from "node:path";
 import process from "node:process";
 import AGENT_RULES from "../../claude/agent-rules.md" with { type: "text" };
 import TEMPLATE from "../../claude/settings.managed.json" with { type: "json" };
 import type { Config } from "../config.ts";
+import { env } from "./env.ts";
 import { botIdentity, resolveCoauthor } from "./github.ts";
 import { configDir, ghConfigDir, installDir, rulePath, shimPath, tokenDir } from "./paths.ts";
 import { run } from "./proc.ts";
@@ -32,8 +33,23 @@ export async function managedSettings(cfg: Config): Promise<Json> {
     SHIM_RULE: rulePath(shimPath()),
     CONFIG_RULE: rulePath(configDir()),
     TOKEN_RULE: rulePath(tokenDir()),
+    PNPM_LOCK_DIR: pnpmLockDir(),
   });
   return withDenyRules(settings, startupRules);
+}
+
+/**
+ * Where pnpm keeps its store operation locks: $XDG_RUNTIME_DIR if it is set,
+ * else /tmp, never $TMPDIR, so the sandbox keeps it read-only. Resolved,
+ * since the sandbox matches /private/tmp, not /tmp.
+ */
+export function pnpmLockDir(): string {
+  const runtime = env("XDG_RUNTIME_DIR");
+  let root = "/tmp";
+  if (runtime && isAbsolute(runtime) && existsSync(runtime)) {
+    root = runtime;
+  }
+  return join(realpathSync(root), `pnpm-store-operation-locks-${process.geteuid?.() ?? 0}`);
 }
 
 /** `settings` with `rules` added to permissions.deny (once each). */

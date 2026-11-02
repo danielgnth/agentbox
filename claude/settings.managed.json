@@ -50,6 +50,7 @@
         "~/.cargo/git",
         "~/.npm",
         "~/Library/pnpm/store",
+        "{{PNPM_LOCK_DIR}}",
         "~/.bun/install/cache",
         "~/.cache",
         "~/Library/Caches"

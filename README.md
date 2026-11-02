@@ -143,6 +143,11 @@ test/                         bun test, against a temporary HOME
   command and most dev tooling in repos that have one. Keep secrets out of
   `.env`: put `op://…` references there and resolve them yourself with
   `op run --env-file=.env -- <command>` (the sandbox can't reach 1Password).
+- **pnpm's store locks are writable.** pnpm 12 keeps them in
+  `$XDG_RUNTIME_DIR` if set, else `/tmp`, never in `$TMPDIR`, so every install
+  failed with `ERR_PNPM_STORE_DIR_OPEN_OPERATION_LOCK`. `setup` allows writes to
+  that `pnpm-store-operation-locks-<uid>` folder only. Sandboxed and terminal
+  pnpm share it, so they still coordinate.
 - **Remotes must use HTTPS.** Credential helpers don't apply to SSH remotes.
 - **Avoid tokens in `~/.zshenv`.** zsh re-reads it inside the sandbox. If you
   must have one there, guard it with `[[ -n $CLAUDECODE ]] ||`.

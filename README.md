@@ -144,6 +144,10 @@ test/                         bun test, against a temporary HOME
   `.env`: put `op://…` references there and resolve them yourself with
   `op run --env-file=.env -- <command>` (the sandbox can't reach 1Password).
 - **Remotes must use HTTPS.** Credential helpers don't apply to SSH remotes.
+- **`rm -rf` runs without asking.** Bash can only delete what the sandbox
+  lets it write: the workdir, its temp folder and the package caches.
+  Everything else in your home folder is read-only to it. An `ask` rule
+  matched only the literal `rm -rf`, not `rm -fr` or `find -delete`.
 - **Avoid tokens in `~/.zshenv`.** zsh re-reads it inside the sandbox. If you
   must have one there, guard it with `[[ -n $CLAUDECODE ]] ||`.
 

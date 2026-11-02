@@ -125,6 +125,6 @@
       "Edit({{CONFIG_RULE}}/**)",
       "Edit({{TOKEN_RULE}}/**)"
     ],
-    "ask": ["Bash(gh pr merge *)", "Bash(rm -rf *)", "Bash(git reset --hard*)"]
+    "ask": ["Bash(gh pr merge *)", "Bash(git reset --hard*)"]
   }
 }
